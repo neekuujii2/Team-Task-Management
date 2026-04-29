@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Form, Input, Button, Select, DatePicker } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Select, DatePicker, message } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../Styles/SignUp.css'; // Importing external stylesheet
@@ -9,8 +9,7 @@ const { Option } = Select;
 function SignUp() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
-  const emailRef = useRef();
-  const passwordRef = useRef();
+  const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
@@ -28,10 +27,22 @@ function SignUp() {
 
   const handleSubmit = async () => {
     try {
-      await signup(formData.email, formData.password);
+      setLoading(true);
+      // Password validation
+      if (formData.password !== formData.confirmPassword) {
+        message.error('Passwords do not match!');
+        return;
+      }
+      // Pass entire formData object as payload
+      await signup(formData);
+      message.success('Account created successfully!');
       navigate('/tasks');
-    } catch {
-      // Handle registration error
+    } catch (error) {
+      console.error('Registration failed:', error);
+      const errorMsg = error.response?.data?.msg || 'Registration failed. Please try again.';
+      message.error(errorMsg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,7 +113,7 @@ function SignUp() {
                 Next
               </Button>
             ) : (
-              <Button type="primary" htmlType="submit" className="signup-btn">
+              <Button type="primary" htmlType="submit" className="signup-btn" loading={loading}>
                 Sign Up
               </Button>
             )}

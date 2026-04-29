@@ -1,26 +1,27 @@
-import React, { useRef } from 'react';
-import { Form, Input, Button } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, message } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
-// import { useAuth } from '../Contexts/AuthContext'; // Commenting out the API call for now
+import { useAuth } from '../context/AuthContext';
 import '../Styles/Login.css'; // Importing external stylesheet
 
 function Login() {
-  const emailRef = useRef();
-  const passwordRef = useRef();
-  // const { login } = useAuth(); // Commenting out the API call for now
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (values) => {
     try {
-      // You can access email and password from the form values
+      setLoading(true);
       const { email, password } = values;
-      // Perform login API call if uncommented
-      // await login(emailRef.current.value, passwordRef.current.value); // Commenting out the API call for now
-      // Redirect to dashboard on successful login
+      await login({ email, password });
+      message.success('Login successful!');
       navigate('/');
     } catch (error) {
-      // Handle login error
       console.error('Login failed:', error);
+      const errorMsg = error.response?.data?.msg || 'Login failed. Please try again.';
+      message.error(errorMsg);
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -38,7 +39,7 @@ function Login() {
           <Input.Password ref={passwordRef} placeholder="Password" size="large" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" className="login-btn" size="large">
+          <Button type="primary" htmlType="submit" className="login-btn" size="large" loading={loading}>
             Log In
           </Button>
         </Form.Item>
