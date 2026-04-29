@@ -13,11 +13,12 @@ function Login() {
     try {
       setLoading(true);
       const { email, password } = values;
+      console.log('🔐 Attempting login with:', email);
       await login({ email, password });
       message.success('Login successful!');
       navigate('/');
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('❌ Login failed:', error);
       const errorMsg = error.response?.data?.msg || 'Login failed. Please try again.';
       message.error(errorMsg);
     } finally {
