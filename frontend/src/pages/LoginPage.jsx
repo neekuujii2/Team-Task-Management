@@ -28,15 +28,15 @@ const LoginPage = () => {
     <div className="auth-layout">
       <section className="auth-hero">
         <p className="eyebrow">Mini SaaS Delivery</p>
-        <h1>Keep each team’s work isolated, visible, and moving.</h1>
+        <h1>Keep each team&apos;s work isolated, visible, and moving.</h1>
         <p>
           Sign in as an admin to create projects and assign tasks, or as a member
           to update only the work assigned to you.
         </p>
         <div className="seed-card">
-          <strong>Seed users</strong>
-          <span>`admin@team1.com / 123456`</span>
-          <span>`member@team1.com / 123456`</span>
+          <strong>Demo accounts</strong>
+          <span>Admin dashboard: admin@team1.com / 123456</span>
+          <span>Member dashboard: member@team1.com / 123456</span>
         </div>
       </section>
 

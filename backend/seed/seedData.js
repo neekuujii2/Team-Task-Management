@@ -26,15 +26,15 @@ const seedData = async () => {
 
     const users = await User.create([
       {
-        name: "Alice Admin",
-        email: "alice.admin@alpha.com",
+        name: "Team 1 Admin",
+        email: "admin@team1.com",
         password: "123456",
         role: "admin",
         teamId: "TEMP_ALPHA",
       },
       {
-        name: "Mia Member",
-        email: "mia.member@alpha.com",
+        name: "Team 1 Member",
+        email: "member@team1.com",
         password: "123456",
         role: "member",
         teamId: "TEMP_ALPHA",
