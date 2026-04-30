@@ -28,10 +28,10 @@ const taskSchema = new mongoose.Schema(
       required: true,
     },
     teamId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Team",
       required: true,
       index: true,
-      trim: true,
     },
     dueDate: {
       type: Date,
