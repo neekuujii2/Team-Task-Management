@@ -1,18 +1,24 @@
 import { Project } from "../models/Project.js";
+import { getTeamObjectId } from "../utils/team.js";
 
 export const createProject = async (req, res) => {
   try {
     const { name, description } = req.body;
+    const teamObjectId = getTeamObjectId(req.user.teamId);
 
     if (!name) {
       return res.status(400).json({ msg: "Project name is required" });
+    }
+
+    if (!teamObjectId) {
+      return res.status(400).json({ msg: "Invalid team context" });
     }
 
     const project = await Project.create({
       name,
       description,
       createdBy: req.user.id,
-      teamId: req.user.teamId,
+      teamId: teamObjectId,
     });
 
     res.status(201).json(project);
@@ -23,7 +29,13 @@ export const createProject = async (req, res) => {
 
 export const getProjects = async (req, res) => {
   try {
-    const projects = await Project.find({ teamId: req.user.teamId })
+    const teamObjectId = getTeamObjectId(req.user.teamId);
+
+    if (!teamObjectId) {
+      return res.json([]);
+    }
+
+    const projects = await Project.find({ teamId: teamObjectId })
       .populate("createdBy", "name email role")
       .sort({ createdAt: -1 });
 

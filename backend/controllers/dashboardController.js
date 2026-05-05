@@ -1,7 +1,13 @@
 import { Task } from "../models/Task.js";
+import { getTeamObjectId } from "../utils/team.js";
 
 const buildDashboardQuery = (user) => {
-  const query = { teamId: user.teamId };
+  const teamObjectId = getTeamObjectId(user.teamId);
+  if (!teamObjectId) {
+    return null;
+  }
+
+  const query = { teamId: teamObjectId };
 
   if (user.role === "member") {
     query.assignedTo = user.id;
@@ -13,6 +19,15 @@ const buildDashboardQuery = (user) => {
 export const getDashboardSummary = async (req, res) => {
   try {
     const query = buildDashboardQuery(req.user);
+    if (!query) {
+      return res.json({
+        totalTasks: 0,
+        completedTasks: 0,
+        pendingTasks: 0,
+        overdueTasks: 0,
+      });
+    }
+
     const now = new Date();
 
     const [totalTasks, completedTasks, pendingTasks, overdueTasks] = await Promise.all([

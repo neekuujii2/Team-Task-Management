@@ -27,7 +27,7 @@ This project is organized as two applications:
 ## Project Structure
 
 ```text
-Task_Management_System_With_Roles/
+Team-Task-Management/
 |-- backend/
 |   |-- config/
 |   |-- controllers/
@@ -98,7 +98,7 @@ cd frontend
 npm run dev
 ```
 
-The frontend runs on `http://localhost:5173` by default and the API health check is available at `http://localhost:5000/api/health`.
+The frontend runs on `https://taskmanagement-production-60db.up.railway.app` by default and the API health check is available at `https://team-task-management-production.up.railway.app/api/health`.
 
 ## Seed Data
 

@@ -2,9 +2,15 @@ import mongoose from "mongoose";
 import { Project } from "../models/Project.js";
 import { Task } from "../models/Task.js";
 import { User } from "../models/User.js";
+import { getTeamObjectId } from "../utils/team.js";
 
 const buildTaskQuery = (user) => {
-  const query = { teamId: user.teamId };
+  const teamObjectId = getTeamObjectId(user.teamId);
+  if (!teamObjectId) {
+    return null;
+  }
+
+  const query = { teamId: teamObjectId };
 
   if (user.role === "member") {
     query.assignedTo = user.id;
@@ -16,9 +22,14 @@ const buildTaskQuery = (user) => {
 export const createTask = async (req, res) => {
   try {
     const { title, description, status, assignedTo, projectId, dueDate } = req.body;
+    const teamObjectId = getTeamObjectId(req.user.teamId);
 
     if (!title || !assignedTo || !projectId || !dueDate) {
       return res.status(400).json({ msg: "Missing required task fields" });
+    }
+
+    if (!teamObjectId) {
+      return res.status(400).json({ msg: "Invalid team context" });
     }
 
     if (
@@ -29,7 +40,7 @@ export const createTask = async (req, res) => {
     }
 
     const [project, assignee] = await Promise.all([
-      Project.findOne({ _id: projectId, teamId: req.user.teamId }),
+      Project.findOne({ _id: projectId, teamId: teamObjectId }),
       User.findOne({ _id: assignedTo, teamId: req.user.teamId }),
     ]);
 
@@ -48,7 +59,7 @@ export const createTask = async (req, res) => {
       assignedTo,
       projectId,
       dueDate,
-      teamId: req.user.teamId,
+      teamId: teamObjectId,
     });
 
     const populatedTask = await Task.findById(task._id)
@@ -63,7 +74,13 @@ export const createTask = async (req, res) => {
 
 export const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find(buildTaskQuery(req.user))
+    const query = buildTaskQuery(req.user);
+
+    if (!query) {
+      return res.json([]);
+    }
+
+    const tasks = await Task.find(query)
       .populate("assignedTo", "name email role")
       .populate("projectId", "name description")
       .sort({ dueDate: 1, createdAt: -1 });
@@ -76,7 +93,13 @@ export const getTasks = async (req, res) => {
 
 export const updateTask = async (req, res) => {
   try {
-    const query = { _id: req.params.id, teamId: req.user.teamId };
+    const teamObjectId = getTeamObjectId(req.user.teamId);
+
+    if (!teamObjectId) {
+      return res.status(400).json({ msg: "Invalid team context" });
+    }
+
+    const query = { _id: req.params.id, teamId: teamObjectId };
 
     if (req.user.role === "member") {
       query.assignedTo = req.user.id;
@@ -113,7 +136,7 @@ export const updateTask = async (req, res) => {
       }
 
       if (projectId) {
-        const project = await Project.findOne({ _id: projectId, teamId: req.user.teamId });
+        const project = await Project.findOne({ _id: projectId, teamId: teamObjectId });
         if (!project) {
           return res.status(404).json({ msg: "Project not found for this team" });
         }
